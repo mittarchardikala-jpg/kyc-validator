@@ -335,20 +335,3 @@ if uploaded_file is not None:
 
 else:
     st.info("📤 Please upload a KYC file to get started!")
-
-# Initialize git
-git init
-
-# Add all files
-git add .
-
-# Create first commit
-git commit -m "Initial commit: KYC Validator app"
-
-# Add remote repository (replace USERNAME with your GitHub username)
-git remote add origin https://github.com/USERNAME/kyc-validator.git
-
-# Push to GitHub
-git branch -M main
-git push -u origin main
-
