@@ -1,73 +1,58 @@
 @echo off
-setlocal enabledelayedexpansion
+cls
+color 0A
+title KYC Validator Startup
 
-echo Starting KYC Validator...
+echo.
+echo ============================================
+echo   KYC VALIDATOR - STARTUP SCRIPT
+echo ============================================
 echo.
 
-REM Check if Python is installed
-python --version >nul 2>&1
+REM Check Python
+echo Checking if Python is installed...
+python --version
 if %errorlevel% neq 0 (
+    color 0C
     echo.
-    echo ============================================
-    echo ERROR: Python is not installed!
-    echo ============================================
+    echo ERROR: Python not found!
     echo.
-    echo Please download and install Python from:
-    echo https://www.python.org/downloads/
+    echo Download Python from: https://www.python.org/downloads/
+    echo IMPORTANT: Check "Add Python to PATH" during installation
     echo.
-    echo IMPORTANT: During installation, CHECK the box:
-    echo "Add Python to PATH"
-    echo.
-    echo ============================================
-    pause
+    echo Press any key to close...
+    pause >nul
     exit /b 1
 )
 
 echo Python found!
 echo.
 
-REM Check if venv exists, if not create it
+REM Create venv
 if not exist "venv" (
-    echo Creating virtual environment (this takes 1-2 minutes)...
+    echo Creating Python environment...
     python -m venv venv
-    if %errorlevel% neq 0 (
-        echo Error creating virtual environment
-        pause
-        exit /b 1
-    )
-    echo Virtual environment created!
 )
 
-echo.
-echo Activating virtual environment...
+echo Activating environment...
 call venv\Scripts\activate.bat
 
-if %errorlevel% neq 0 (
-    echo Error activating virtual environment
-    pause
-    exit /b 1
-)
+echo.
+echo Installing packages (first time: 2-3 minutes)...
+pip install -q streamlit pandas openpyxl
 
 echo.
-echo Installing dependencies (this takes 2-3 minutes on first run)...
-pip install -r requirements.txt
-
-if %errorlevel% neq 0 (
-    echo Error installing dependencies
-    pause
-    exit /b 1
-)
-
+echo ============================================
+echo Starting KYC Validator...
+echo ============================================
 echo.
-echo ========================================
-echo KYC Validator is starting...
-echo ========================================
+echo Opening browser in 3 seconds...
+echo Go to: http://localhost:8501
 echo.
-echo Your browser will open automatically in 5 seconds...
-echo If not, go to: http://localhost:8501
-echo.
-timeout /t 5
+timeout /t 3 /nobreak
 
 streamlit run streamlit_app.py
 
+echo.
+echo Application closed.
 pause
