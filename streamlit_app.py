@@ -64,11 +64,92 @@ def get_app_version():
 
 # Check for updates on startup
 update_status, update_message = check_and_update_from_github()
-if update_status == "updated":
-    st.warning(f"🔄 {update_message}")
-    st.info("Please refresh your browser to load the latest version.")
-elif update_status == "offline":
-    st.caption(f"⚠️ {update_message}")
+
+# ==================== CUSTOM CSS FOR BETTER UI ====================
+
+st.markdown("""
+<style>
+    /* Status box styling */
+    .status-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 15px 0;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #00ff88;
+    }
+    
+    .status-box-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .status-box-message {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    /* Upload section styling */
+    .upload-section {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        margin: 20px 0;
+    }
+    
+    .upload-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+    
+    /* Status indicator styling */
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid #00ff88;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #00d665;
+        margin-top: 12px;
+    }
+    
+    .status-indicator.updated {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid #ffc107;
+        color: #ff9800;
+    }
+    
+    .status-indicator.offline {
+        background: rgba(255, 152, 0, 0.1);
+        border: 1px solid #ff9800;
+        color: #ff6f00;
+    }
+    
+    /* Version badge */
+    .version-badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 12px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ==================== HELPER FUNCTION: NORMALIZE COLUMN NAMES ====================
 
@@ -269,16 +350,54 @@ def create_excel_file(sheets_dict):
 
 st.title("🔍 KYC Validator")
 st.markdown("---")
-st.markdown("Upload your KYC file to check for data quality issues.")
 
-# Upload section with version info
-col1, col2 = st.columns([3, 1])
+# ==================== STATUS SECTION ====================
+
+# Show update status if needed
+if update_status == "updated":
+    st.markdown("""
+    <div class="status-box">
+        <div class="status-box-title">🔄 System Update</div>
+        <div class="status-box-message">Code updated from GitHub! Please refresh the page to load the latest version.</div>
+    </div>
+    """, unsafe_allow_html=True)
+elif update_status == "offline":
+    st.markdown("""
+    <div class="status-box" style="border-left-color: #ff9800;">
+        <div class="status-box-title">⚠️ Offline Mode</div>
+        <div class="status-box-message">No internet connection detected. Running local version.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ==================== UPLOAD SECTION ====================
+
+st.markdown("""
+<div class="upload-section">
+    <div class="upload-title">📁 Upload Your KYC File</div>
+</div>
+""", unsafe_allow_html=True)
+
+# File uploader
+uploaded_file = st.file_uploader("", type=['csv', 'xlsx', 'xls', 'xlsb'], label_visibility="collapsed")
+
+# Status and version info below upload
+col1, col2, col3 = st.columns([2, 1, 1])
+
 with col1:
-    uploaded_file = st.file_uploader("Upload KYC file (CSV, Excel, or XLSB)", type=['csv', 'xlsx', 'xls', 'xlsb'])
+    if update_status == "current":
+        st.markdown('<div class="status-indicator">✅ System Ready</div>', unsafe_allow_html=True)
+    elif update_status == "updated":
+        st.markdown('<div class="status-indicator updated">🔄 Code Updated</div>', unsafe_allow_html=True)
+    elif update_status == "offline":
+        st.markdown('<div class="status-indicator offline">📡 Offline Mode</div>', unsafe_allow_html=True)
 
-with col2:
+with col3:
     app_version = get_app_version()
-    st.caption(f"📡 Version: {app_version}")
+    st.markdown(f'<div class="version-badge">Version: {app_version}</div>', unsafe_allow_html=True)
+
+st.markdown("---")
+
+# ==================== FILE PROCESSING ====================
 
 if uploaded_file is not None:
     # Read file
