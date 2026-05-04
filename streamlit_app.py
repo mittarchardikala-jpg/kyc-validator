@@ -4,10 +4,48 @@ from datetime import datetime
 import re
 from io import BytesIO
 import requests
+import os
+import sys
 
 st.set_page_config(page_title="KYC Validator", layout="wide")
 
-# ==================== LOAD CODE FROM CLOUD ====================
+# ==================== AUTO-UPDATE FROM GITHUB ====================
+
+@st.cache_resource
+def check_and_update_from_github():
+    """
+    Check GitHub for latest version of streamlit_app.py and update if available
+    """
+    try:
+        # Get current script path
+        current_file = os.path.abspath(__file__)
+        
+        # Get latest file from GitHub
+        github_raw_url = "https://raw.githubusercontent.com/mittarchardikala-jpg/kyc-validator/main/streamlit_app.py"
+        response = requests.get(github_raw_url, timeout=5)
+        
+        if response.status_code == 200:
+            # Read current file
+            with open(current_file, 'r', encoding='utf-8') as f:
+                current_content = f.read()
+            
+            # Compare with GitHub version
+            github_content = response.text
+            
+            if current_content != github_content:
+                # Update the file
+                with open(current_file, 'w', encoding='utf-8') as f:
+                    f.write(github_content)
+                
+                return "updated", "Code updated from GitHub! Please refresh the page."
+            else:
+                return "current", "You have the latest version"
+        else:
+            return "error", "Could not check for updates"
+    except requests.exceptions.Timeout:
+        return "offline", "No internet connection - running local version"
+    except Exception as e:
+        return "error", f"Update check failed: {str(e)}"
 
 @st.cache_resource
 def get_app_version():
@@ -15,13 +53,22 @@ def get_app_version():
     try:
         response = requests.get(
             "https://api.github.com/repos/mittarchardikala-jpg/kyc-validator/commits",
-            params={"per_page": 1}
+            params={"per_page": 1},
+            timeout=5
         )
         if response.status_code == 200:
             return response.json()[0]['sha'][:7]
     except:
         pass
     return "Local"
+
+# Check for updates on startup
+update_status, update_message = check_and_update_from_github()
+if update_status == "updated":
+    st.warning(f"🔄 {update_message}")
+    st.info("Please refresh your browser to load the latest version.")
+elif update_status == "offline":
+    st.caption(f"⚠️ {update_message}")
 
 # ==================== HELPER FUNCTION: NORMALIZE COLUMN NAMES ====================
 
