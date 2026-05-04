@@ -231,7 +231,7 @@ def prepare_dataframe(df):
     required_columns = {
         'ucic': ['ucic', 'ucic number', 'ucic_number'],
         'pan': ['pan', 'pan number', 'pan_number'],
-        'name': ['name of the borrower', 'name of borrower', 'borrower name', 'customer name'],
+        'name': ['name of the borrower', 'name of borrower', 'borrower name', 'customer name','Client Name','Applicant Name'],
         'mobile': ['mobile', 'mobile number', 'mobile_number', 'phone', 'phone number']
     }
     
