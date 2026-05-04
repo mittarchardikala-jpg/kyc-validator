@@ -148,6 +148,49 @@ st.markdown("""
         font-weight: 600;
         margin-top: 12px;
     }
+    
+    /* Processing indicator styling */
+    .processing-indicator {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #00ff88;
+        text-align: center;
+    }
+    
+    .processing-spinner {
+        display: inline-block;
+        font-size: 24px;
+        margin-right: 12px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .processing-title {
+        font-size: 18px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .processing-message {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 8px;
+    }
+    
+    /* Hide Streamlit elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -400,6 +443,17 @@ st.markdown("---")
 # ==================== FILE PROCESSING ====================
 
 if uploaded_file is not None:
+    # Show processing indicator
+    st.markdown("""
+    <div class="processing-indicator">
+        <div class="processing-title">
+            <span class="processing-spinner">⚙️</span>
+            Processing Your File
+        </div>
+        <div class="processing-message">Analyzing data... Please wait</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     # Read file
     try:
         if uploaded_file.name.endswith('.csv'):
